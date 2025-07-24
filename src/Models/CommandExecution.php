@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 final class CommandExecution extends Model
 {
@@ -36,15 +36,15 @@ final class CommandExecution extends Model
     ];
 
     /**
-     * Get the user who executed the command.
+     * Get the user who executed the command
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'executed_by', 'id');
+        return $this->belongsTo(config('auth.providers.users.model', \App\Models\User::class), 'executed_by');
     }
 
     /**
-     * Scope for successful executions.
+     * Scope for successful executions
      */
     public function scopeSuccessful($query)
     {
@@ -52,7 +52,7 @@ final class CommandExecution extends Model
     }
 
     /**
-     * Scope for failed executions.
+     * Scope for failed executions
      */
     public function scopeFailed($query)
     {
@@ -60,42 +60,42 @@ final class CommandExecution extends Model
     }
 
     /**
-     * Scope for recent executions.
+     * Scope for recent executions
      */
-    public function scopeRecent($query, $days = 7)
+    public function scopeRecent($query, int $days = 30)
     {
         return $query->where('started_at', '>=', now()->subDays($days));
     }
 
     /**
-     * Get the last execution time for a specific command.
+     * Get formatted execution time
      */
-    public static function getLastExecutionTime(string $commandName): ?self
+    public function getFormattedExecutionTimeAttribute(): string
     {
-        return static::where('command_name', $commandName)
-            ->where('success', true)
-            ->latest('started_at')
-            ->first();
+        if (!$this->execution_time) {
+            return 'N/A';
+        }
+
+        if ($this->execution_time < 1) {
+            return round($this->execution_time * 1000, 0) . 'ms';
+        }
+
+        return round($this->execution_time, 2) . 's';
     }
 
     /**
-     * Get execution statistics for a command.
+     * Get status badge
      */
-    public static function getCommandStats(string $commandName, int $days = 30): array
+    public function getStatusBadgeAttribute(): string
     {
-        $executions = static::where('command_name', $commandName)
-            ->where('started_at', '>=', now()->subDays($days))
-            ->get();
-
-        return [
-            'total_executions' => $executions->count(),
-            'successful_executions' => $executions->where('success', true)->count(),
-            'failed_executions' => $executions->where('success', false)->count(),
-            'average_execution_time' => $executions->whereNotNull('execution_time')->avg('execution_time'),
-            'last_execution' => $executions->sortByDesc('started_at')->first(),
-            'success_rate' => $executions->count() > 0 
-                ? round(($executions->where('success', true)->count() / $executions->count()) * 100, 2)
-                : 0,
-        ];
+        return $this->success ? 'success' : 'danger';
     }
-} 
+
+    /**
+     * Get status text
+     */
+    public function getStatusTextAttribute(): string
+    {
+        return $this->success ? 'Success' : 'Failed';
+    }
+}

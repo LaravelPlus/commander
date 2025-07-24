@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Traits;
 
+use Illuminate\Support\Facades\App;
+use LaravelPlus\Commander\Contracts\CommandExecutionRepositoryInterface;
 use LaravelPlus\Commander\Models\CommandExecution;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 trait TracksCommandExecution
 {
     protected ?CommandExecution $executionRecord = null;
+
     protected float $startTime;
 
     /**
-     * Start tracking command execution.
+     * Start tracking a command execution
      */
     protected function startTracking(string $commandName, array $arguments = [], array $options = []): void
     {
@@ -24,25 +25,20 @@ trait TracksCommandExecution
 
         $this->startTime = microtime(true);
 
-        try {
-            $this->executionRecord = CommandExecution::create([
-                'command_name' => $commandName,
-                'arguments' => config('commander.track_arguments', true) ? $arguments : null,
-                'options' => config('commander.track_options', true) ? $options : null,
-                'executed_by' => config('commander.track_user', true) ? Auth::id() : null,
-                'environment' => app()->environment(),
-                'started_at' => now(),
-            ]);
-        } catch (\Exception $e) {
-            Log::warning('Failed to create command execution record', [
-                'command' => $commandName,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        $repository = App::make(CommandExecutionRepositoryInterface::class);
+
+        $this->executionRecord = $repository->create([
+            'command_name' => $commandName,
+            'arguments' => config('commander.track_arguments', true) ? $arguments : null,
+            'options' => config('commander.track_options', true) ? $options : null,
+            'started_at' => now(),
+            'executed_by' => config('commander.track_user', true) ? auth()->id() : null,
+            'environment' => config('app.env'),
+        ]);
     }
 
     /**
-     * Complete tracking command execution.
+     * Complete tracking a command execution
      */
     protected function completeTracking(bool $success, int $returnCode = 0, string $output = ''): void
     {
@@ -50,55 +46,38 @@ trait TracksCommandExecution
             return;
         }
 
-        try {
-            $executionTime = config('commander.track_execution_time', true) 
-                ? microtime(true) - $this->startTime 
-                : null;
+        $endTime = microtime(true);
+        $executionTime = round($endTime - $this->startTime, 3);
 
-            $output = config('commander.track_output', true) 
-                ? $this->truncateOutput($output) 
-                : null;
+        $repository = App::make(CommandExecutionRepositoryInterface::class);
 
-            $this->executionRecord->update([
-                'output' => $output,
-                'return_code' => $returnCode,
-                'success' => $success,
-                'execution_time' => $executionTime,
-                'completed_at' => now(),
-            ]);
+        $repository->update($this->executionRecord, [
+            'output' => config('commander.track_output', true) ? $this->truncateOutput($output) : null,
+            'return_code' => $returnCode,
+            'success' => $success,
+            'execution_time' => config('commander.track_execution_time', true) ? $executionTime : null,
+            'completed_at' => now(),
+        ]);
 
-            // Log failed executions
-            if (!$success) {
-                Log::error('Command execution failed', [
-                    'command' => $this->executionRecord->command_name,
-                    'return_code' => $returnCode,
-                    'execution_time' => $executionTime,
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::warning('Failed to update command execution record', [
-                'command' => $this->executionRecord->command_name,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        $this->executionRecord = null;
     }
 
     /**
-     * Truncate output if it exceeds the maximum length.
+     * Truncate output if it exceeds the maximum length
      */
     protected function truncateOutput(string $output): string
     {
         $maxLength = config('commander.max_output_length', 10000);
-        
-        if (strlen($output) <= $maxLength) {
+
+        if (mb_strlen($output) <= $maxLength) {
             return $output;
         }
 
-        return substr($output, 0, $maxLength) . "\n\n[Output truncated - exceeded maximum length]";
+        return mb_substr($output, 0, $maxLength) . "\n\n[Output truncated - see logs for full output]";
     }
 
     /**
-     * Check if command should be tracked.
+     * Check if a command should be tracked
      */
     protected function shouldTrackCommand(string $commandName): bool
     {
@@ -106,39 +85,39 @@ trait TracksCommandExecution
             return false;
         }
 
-        // Check ignored commands
-        $ignoredCommands = config('commander.ignored_commands', []);
-        foreach ($ignoredCommands as $ignored) {
-            if ($this->matchesPattern($commandName, $ignored)) {
-                return false;
-            }
-        }
-
-        // Check tracked commands (if specified)
         $trackedCommands = config('commander.tracked_commands', []);
+        $ignoredCommands = config('commander.ignored_commands', []);
+
+        // If specific commands are tracked, only track those
         if (!empty($trackedCommands)) {
-            foreach ($trackedCommands as $tracked) {
-                if ($this->matchesPattern($commandName, $tracked)) {
+            foreach ($trackedCommands as $pattern) {
+                if ($this->matchesPattern($commandName, $pattern)) {
                     return true;
                 }
             }
+
             return false;
+        }
+
+        // Check if command is ignored
+        foreach ($ignoredCommands as $pattern) {
+            if ($this->matchesPattern($commandName, $pattern)) {
+                return false;
+            }
         }
 
         return true;
     }
 
     /**
-     * Check if command name matches pattern (supports wildcards).
+     * Check if command name matches a pattern
      */
     protected function matchesPattern(string $commandName, string $pattern): bool
     {
-        if ($pattern === $commandName) {
-            return true;
-        }
-
         // Convert wildcard pattern to regex
-        $regex = str_replace(['*', '?'], ['.*', '.'], preg_quote($pattern, '/'));
-        return preg_match("/^{$regex}$/", $commandName);
+        $regex = str_replace(['*', '?'], ['.*', '.'], $pattern);
+        $regex = '/^' . $regex . '$/';
+
+        return (bool) preg_match($regex, $commandName);
     }
-} 
+}

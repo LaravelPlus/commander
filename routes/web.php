@@ -3,38 +3,35 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
-use LaravelPlus\Commander\Http\Controllers\CommandsController;
-
-/*
-|--------------------------------------------------------------------------
-| Commander Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your commander package.
-| These routes are loaded by the CommanderRouteServiceProvider.
-|
-*/
+use LaravelPlus\Commander\Http\Actions\ShowActivityAction;
+use LaravelPlus\Commander\Http\Actions\ShowDashboardAction;
+use LaravelPlus\Commander\Http\Actions\ShowDebugAction;
+use LaravelPlus\Commander\Http\Actions\ShowListAction;
+use LaravelPlus\Commander\Http\Actions\ShowRetryAction;
+use LaravelPlus\Commander\Http\Actions\ShowScheduleAction;
+use LaravelPlus\Commander\Http\Actions\ShowTestAction;
 
 $commanderUrl = config('commander.url', 'commander');
 
 Route::group([
-    'middleware' => ['auth'],
+    'middleware' => config('commander.middleware', ['auth', 'web']),
     'prefix' => $commanderUrl,
-], function () {
-    
-    // Main commander interface
-    Route::get('/', [CommandsController::class, 'index'])->name('index');
-    
-    // API endpoints
-    Route::get('/state', [CommandsController::class, 'getState'])->name('state');
-    Route::get('/list', [CommandsController::class, 'getCommands'])->name('list');
-    Route::post('/run', [CommandsController::class, 'runCommand'])->name('run');
-    
-    // Command history and statistics
-    Route::get('/{commandName}/history', [CommandsController::class, 'getCommandHistory'])->name('history');
-    Route::get('/{commandName}/stats', [CommandsController::class, 'getCommandStats'])->name('stats');
-    
-    // Debug and test endpoints
-    Route::get('/debug', [CommandsController::class, 'debug'])->name('debug');
-    Route::get('/test', [CommandsController::class, 'test'])->name('test');
-}); 
+], function (): void {
+    // Main interface routes
+    Route::get('/', fn (): Illuminate\View\View => (new ShowDashboardAction())->execute())->name('commander.index');
+
+    Route::get('/list', fn (): Illuminate\View\View => (new ShowListAction())->execute())->name('commander.list');
+
+    Route::get('/schedule', fn (): Illuminate\View\View => (new ShowScheduleAction())->execute())->name('commander.schedule');
+
+    Route::get('/retry', fn (): Illuminate\View\View => (new ShowRetryAction())->execute())->name('commander.retry');
+
+    Route::get('/activity', fn (): Illuminate\View\View => (new ShowActivityAction())->execute())->name('commander.activity');
+
+    // Debug and test routes (only in non-production)
+    if (app()->environment('local', 'development')) {
+        Route::get('/debug', fn (): Illuminate\View\View => (new ShowDebugAction())->execute())->name('commander.debug');
+
+        Route::get('/test', fn (): Illuminate\View\View => (new ShowTestAction())->execute())->name('commander.test');
+    }
+});

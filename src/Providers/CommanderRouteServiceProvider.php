@@ -14,13 +14,18 @@ final class CommanderRouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->routes(function () {
+        $this->routes(function (): void {
+            // Load web routes
             Route::middleware('web')
-                ->prefix(config('commander.route_prefix', 'admin'))
-                ->name(config('commander.route_name_prefix', 'commander') . '.')
-                ->group(function () {
+                ->group(function (): void {
                     $this->loadRoutesFrom(__DIR__ . '/../../routes/web.php');
+                });
+
+            // Load API routes
+            Route::middleware('web')
+                ->group(function (): void {
+                    $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
                 });
         });
     }
-} 
+}

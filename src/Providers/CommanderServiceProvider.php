@@ -5,7 +5,13 @@ declare(strict_types=1);
 namespace LaravelPlus\Commander\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelPlus\Commander\Contracts\CommandExecutionRepositoryInterface;
+use LaravelPlus\Commander\Contracts\CommandRepositoryInterface;
+use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Models\CommandExecution;
+use LaravelPlus\Commander\Repositories\CommandExecutionRepository;
+use LaravelPlus\Commander\Repositories\CommandRepository;
+use LaravelPlus\Commander\Services\CommanderService;
 
 final class CommanderServiceProvider extends ServiceProvider
 {
@@ -18,7 +24,22 @@ final class CommanderServiceProvider extends ServiceProvider
             __DIR__ . '/../../config/commander.php', 'commander'
         );
 
-        // Register route service provider
+        // Register repositories
+        $this->app->bind(CommandExecutionRepositoryInterface::class, CommandExecutionRepository::class);
+        $this->app->bind(CommandRepositoryInterface::class, CommandRepository::class);
+
+        // Register services
+        $this->app->singleton(CommanderService::class, fn ($app) => new CommanderService(
+            $app->make(CommandExecutionRepositoryInterface::class),
+            $app->make(CommandRepositoryInterface::class)
+        ));
+
+        // Register the interface binding
+        $this->app->bind(CommanderServiceInterface::class, CommanderService::class);
+
+        // Register the execution model as a singleton for backward compatibility
+        $this->app->singleton('commander.execution', fn () => new CommandExecution());
+
         $this->app->register(CommanderRouteServiceProvider::class);
     }
 
@@ -27,6 +48,9 @@ final class CommanderServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Load views
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'commander');
+
         // Publish config
         $this->publishes([
             __DIR__ . '/../../config/commander.php' => config_path('commander.php'),
@@ -42,12 +66,12 @@ final class CommanderServiceProvider extends ServiceProvider
             __DIR__ . '/../../routes' => base_path('routes/commander'),
         ], 'commander-routes');
 
+        // Publish views
+        $this->publishes([
+            __DIR__ . '/../../resources/views' => resource_path('views/vendor/commander'),
+        ], 'commander-views');
+
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-
-        // Register the model
-        $this->app->singleton('commander.execution', function () {
-            return new CommandExecution();
-        });
     }
-} 
+}
