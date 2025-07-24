@@ -17,6 +17,9 @@ final class CommanderServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__ . '/../../config/commander.php', 'commander'
         );
+
+        // Register route service provider
+        $this->app->register(CommanderRouteServiceProvider::class);
     }
 
     /**
@@ -33,6 +36,11 @@ final class CommanderServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../database/migrations' => database_path('migrations'),
         ], 'commander-migrations');
+
+        // Publish routes
+        $this->publishes([
+            __DIR__ . '/../../routes' => base_path('routes/commander'),
+        ], 'commander-routes');
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');

@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Interface Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure the URL and interface settings for the commander.
+    |
+    */
+
+    'url' => env('COMMANDER_URL', 'admin/commander'),
+    'route_prefix' => env('COMMANDER_ROUTE_PREFIX', 'admin'),
+    'route_name_prefix' => env('COMMANDER_ROUTE_NAME_PREFIX', 'commander'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Database Configuration
     |--------------------------------------------------------------------------
     |

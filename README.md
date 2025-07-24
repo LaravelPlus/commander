@@ -12,10 +12,21 @@ A Laravel package for tracking and managing command executions with detailed ana
 - ✅ **Output Storage**: Store command output with configurable limits
 - ✅ **Pattern Matching**: Support for wildcard patterns in command filtering
 - ✅ **Retention Policy**: Automatic cleanup of old execution records
+- ✅ **Configurable URL**: Customize the interface URL
 
 ## Installation
 
-### 1. Add to composer.json
+### Option 1: Production Installation (Recommended)
+
+For production projects, install via Composer:
+
+```bash
+composer require laravelplus/commander
+```
+
+### Option 2: Development Installation
+
+For development or local projects, add to your `composer.json`:
 
 ```json
 {
@@ -31,8 +42,7 @@ A Laravel package for tracking and managing command executions with detailed ana
 }
 ```
 
-### 2. Install the package
-
+Then run:
 ```bash
 composer install
 ```
@@ -57,6 +67,12 @@ The package is highly configurable through the `config/commander.php` file:
 ```php
 return [
     'enabled' => env('COMMANDER_ENABLED', true),
+    
+    // Interface Configuration
+    'url' => env('COMMANDER_URL', 'admin/commander'),
+    'route_prefix' => env('COMMANDER_ROUTE_PREFIX', 'admin'),
+    'route_name_prefix' => env('COMMANDER_ROUTE_NAME_PREFIX', 'commander'),
+    
     'track_output' => env('COMMANDER_TRACK_OUTPUT', true),
     'track_arguments' => env('COMMANDER_TRACK_ARGUMENTS', true),
     'track_options' => env('COMMANDER_TRACK_OPTIONS', true),
@@ -72,6 +88,20 @@ return [
 ];
 ```
 
+## URL Configuration
+
+You can customize the commander interface URL by setting the `COMMANDER_URL` environment variable:
+
+```env
+# Default: http://127.0.0.1:8000/admin/commander
+COMMANDER_URL=admin/commander
+
+# Custom URL examples:
+COMMANDER_URL=admin/tools/commands
+COMMANDER_URL=management/command-center
+COMMANDER_URL=system/command-executor
+```
+
 ## Usage
 
 ### Basic Usage
@@ -83,6 +113,25 @@ use LaravelPlus\Commander\Http\Controllers\CommandsController;
 
 $controller = new CommandsController();
 $controller->setCommands($yourCommandsArray);
+```
+
+### Helper Functions
+
+The package provides helper functions for easy access:
+
+```php
+// Generate commander URL
+$url = commander_url(); // http://127.0.0.1:8000/admin/commander
+$url = commander_url('list'); // http://127.0.0.1:8000/admin/commander/list
+
+// Generate commander routes
+$route = commander_route('index'); // commander.index
+$route = commander_route('run', ['command' => 'test']); // commander.run
+
+// Check if commander is enabled
+if (commander_enabled()) {
+    // Commander functionality is available
+}
 ```
 
 ### Manual Tracking
@@ -147,7 +196,7 @@ The package provides several API endpoints for managing command executions:
 ### Get Commands with History
 
 ```http
-GET /admin/commands
+GET /admin/commander
 ```
 
 Returns all commands with their last execution time and statistics.
@@ -155,7 +204,7 @@ Returns all commands with their last execution time and statistics.
 ### Get Command History
 
 ```http
-GET /admin/commands/{commandName}/history
+GET /admin/commander/{commandName}/history
 ```
 
 Returns paginated history of executions for a specific command.
@@ -163,7 +212,7 @@ Returns paginated history of executions for a specific command.
 ### Get Command Statistics
 
 ```http
-GET /admin/commands/{commandName}/stats
+GET /admin/commander/{commandName}/stats
 ```
 
 Returns detailed statistics for a command including success rate, average execution time, etc.
@@ -171,7 +220,7 @@ Returns detailed statistics for a command including success rate, average execut
 ### Run Command with Tracking
 
 ```http
-POST /admin/commands/run
+POST /admin/commander/run
 {
     "command": "check:password-expiry",
     "arguments": ["--batch-size=10"],
@@ -211,7 +260,15 @@ CREATE TABLE command_executions (
 ## Environment Variables
 
 ```env
+# Enable/Disable Commander
 COMMANDER_ENABLED=true
+
+# URL Configuration
+COMMANDER_URL=admin/commander
+COMMANDER_ROUTE_PREFIX=admin
+COMMANDER_ROUTE_NAME_PREFIX=commander
+
+# Tracking Configuration
 COMMANDER_TRACK_OUTPUT=true
 COMMANDER_TRACK_ARGUMENTS=true
 COMMANDER_TRACK_OPTIONS=true
