@@ -11,16 +11,18 @@ use LaravelPlus\Commander\Http\Actions\BaseAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class BaseActionTest extends TestCase
+final class BaseActionTest extends TestCase
 {
     private BaseAction $baseAction;
+
     private CommanderServiceInterface $mockCommanderService;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->mockCommanderService = Mockery::mock(CommanderServiceInterface::class);
-        $this->baseAction = new class($this->mockCommanderService) extends BaseAction {
+        $this->baseAction = new class($this->mockCommanderService) extends BaseAction
+        {
             public function execute(): JsonResponse
             {
                 return $this->successResponse(['test' => 'data'], 'Test success');
@@ -41,12 +43,12 @@ class BaseActionTest extends TestCase
                 return $this->handleException($e, $context);
             }
 
-            public function testExecuteWithExceptionHandling(callable $callback, string $context = 'Test'): JsonResponse
+            public function test_execute_with_exception_handling(callable $callback, string $context = 'Test'): JsonResponse
             {
                 return $this->executeWithExceptionHandling($callback, $context);
             }
 
-            public function testSuccessResponse(mixed $data = null, string $message = 'Success'): JsonResponse
+            public function test_success_response(mixed $data = null, string $message = 'Success'): JsonResponse
             {
                 return $this->successResponse($data, $message);
             }
@@ -67,7 +69,8 @@ class BaseActionTest extends TestCase
 
     public function test_success_response_without_data(): void
     {
-        $baseAction = new class($this->mockCommanderService) extends BaseAction {
+        $baseAction = new class($this->mockCommanderService) extends BaseAction
+        {
             public function execute(): JsonResponse
             {
                 return $this->successResponse();
@@ -163,4 +166,4 @@ class BaseActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

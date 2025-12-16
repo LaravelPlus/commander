@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
@@ -11,10 +12,12 @@ use LaravelPlus\Commander\Http\Actions\RetryCommandAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class RetryCommandActionTest extends TestCase
+final class RetryCommandActionTest extends TestCase
 {
     private RetryCommandAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
+
     private Request $mockRequest;
 
     protected function setUp(): void
@@ -77,7 +80,7 @@ class RetryCommandActionTest extends TestCase
         $this->mockCommanderService->shouldReceive('retryCommand')
             ->with('help')
             ->once()
-            ->andThrow(new \Exception('Failed to retry command'));
+            ->andThrow(new Exception('Failed to retry command'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -109,4 +112,4 @@ class RetryCommandActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

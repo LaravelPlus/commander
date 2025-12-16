@@ -36,4 +36,4 @@ final class SearchCommandsAction extends BaseAction
             'Commands search completed successfully',
         );
     }
-} 
+}

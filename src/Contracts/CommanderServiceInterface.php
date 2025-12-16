@@ -72,4 +72,4 @@ interface CommanderServiceInterface
      * Cleanup old records
      */
     public function cleanupOldRecords(?int $days = null): int;
-} 
+}

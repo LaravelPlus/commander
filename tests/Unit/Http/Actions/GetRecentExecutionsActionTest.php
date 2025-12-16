@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
@@ -11,9 +12,10 @@ use LaravelPlus\Commander\Http\Actions\GetRecentExecutionsAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class GetRecentExecutionsActionTest extends TestCase
+final class GetRecentExecutionsActionTest extends TestCase
 {
     private GetRecentExecutionsAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
 
     protected function setUp(): void
@@ -80,7 +82,7 @@ class GetRecentExecutionsActionTest extends TestCase
         $this->mockCommanderService->shouldReceive('getRecentExecutions')
             ->with(10)
             ->once()
-            ->andThrow(new \Exception('Failed to get recent executions'));
+            ->andThrow(new Exception('Failed to get recent executions'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -116,4 +118,4 @@ class GetRecentExecutionsActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

@@ -8,7 +8,7 @@ use Illuminate\View\View;
 use LaravelPlus\Commander\Http\Actions\ShowDashboardAction;
 use LaravelPlus\Commander\Tests\TestCase;
 
-class ShowDashboardActionTest extends TestCase
+final class ShowDashboardActionTest extends TestCase
 {
     private ShowDashboardAction $action;
 
@@ -33,4 +33,4 @@ class ShowDashboardActionTest extends TestCase
         $this->assertInstanceOf(View::class, $response);
         $this->assertIsArray($response->getData());
     }
-} 
+}

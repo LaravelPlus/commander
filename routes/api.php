@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
+use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Http\Actions\CleanupRecordsAction;
 use LaravelPlus\Commander\Http\Actions\GetActivityAction;
 use LaravelPlus\Commander\Http\Actions\GetCommandHistoryAction;
@@ -16,7 +17,6 @@ use LaravelPlus\Commander\Http\Actions\GetRecentExecutionsAction;
 use LaravelPlus\Commander\Http\Actions\RetryCommandAction;
 use LaravelPlus\Commander\Http\Actions\RunCommandAction;
 use LaravelPlus\Commander\Http\Actions\SearchCommandsAction;
-use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 
 $commanderUrl = config('commander.url', 'commander');
 

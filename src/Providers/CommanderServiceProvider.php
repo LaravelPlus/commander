@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace LaravelPlus\Commander\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Contracts\CommandExecutionRepositoryInterface;
 use LaravelPlus\Commander\Contracts\CommandRepositoryInterface;
-use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Models\CommandExecution;
 use LaravelPlus\Commander\Repositories\CommandExecutionRepository;
 use LaravelPlus\Commander\Repositories\CommandRepository;

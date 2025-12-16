@@ -30,7 +30,7 @@ abstract class TestCase extends Orchestra
         $app['config']->set('commander.enabled', true);
         $app['config']->set('commander.url', 'commander');
         $app['config']->set('commander.middleware', []);
-        
+
         // Set app key for testing
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));
     }
@@ -38,8 +38,8 @@ abstract class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run migrations for the test database
         $this->artisan('migrate');
     }
-} 
+}

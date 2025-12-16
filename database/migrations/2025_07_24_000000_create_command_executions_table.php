@@ -13,6 +13,10 @@ return new class() extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('command_executions')) {
+            return;
+        }
+
         Schema::create('command_executions', function (Blueprint $table): void {
             $table->id();
             $table->string('command_name');

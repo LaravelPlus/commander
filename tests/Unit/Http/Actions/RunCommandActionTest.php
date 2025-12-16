@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
@@ -11,10 +12,12 @@ use LaravelPlus\Commander\Http\Actions\RunCommandAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class RunCommandActionTest extends TestCase
+final class RunCommandActionTest extends TestCase
 {
     private RunCommandAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
+
     private Request $mockRequest;
 
     protected function setUp(): void
@@ -23,7 +26,7 @@ class RunCommandActionTest extends TestCase
         $this->mockCommanderService = Mockery::mock(CommanderServiceInterface::class);
         $this->mockRequest = Mockery::mock(Request::class);
         $this->action = new RunCommandAction($this->mockCommanderService, $this->mockRequest);
-        
+
         // Disable command tracking for tests
         config(['commander.enabled' => false]);
     }
@@ -143,7 +146,7 @@ class RunCommandActionTest extends TestCase
         $this->mockCommanderService->shouldReceive('executeCommand')
             ->with('help', [], [])
             ->once()
-            ->andThrow(new \Exception('Command execution failed'));
+            ->andThrow(new Exception('Command execution failed'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -198,4 +201,4 @@ class RunCommandActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

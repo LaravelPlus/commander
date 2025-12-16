@@ -6,7 +6,7 @@ namespace LaravelPlus\Commander\Tests\Feature;
 
 use LaravelPlus\Commander\Tests\TestCase;
 
-class DashboardTest extends TestCase
+final class DashboardTest extends TestCase
 {
     public function test_dashboard_api_returns_stats(): void
     {
@@ -34,7 +34,7 @@ class DashboardTest extends TestCase
         $response = $this->get('/commander/api/popular');
 
         $response->assertStatus(200);
-        
+
         // Since there's no data, we expect an empty array
         $data = $response->json();
         $this->assertIsArray($data);
@@ -45,9 +45,9 @@ class DashboardTest extends TestCase
         $response = $this->get('/commander/api/recent');
 
         $response->assertStatus(200);
-        
+
         // Since there's no data, we expect an empty array
         $data = $response->json();
         $this->assertIsArray($data);
     }
-} 
+}

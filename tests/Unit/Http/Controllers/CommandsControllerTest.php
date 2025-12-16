@@ -13,9 +13,10 @@ use LaravelPlus\Commander\Http\Controllers\CommandsController;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class CommandsControllerTest extends TestCase
+final class CommandsControllerTest extends TestCase
 {
     private CommandsController $controller;
+
     private CommanderServiceInterface $mockCommanderService;
 
     protected function setUp(): void
@@ -270,4 +271,4 @@ class CommandsControllerTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

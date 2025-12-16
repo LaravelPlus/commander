@@ -13,8 +13,7 @@ abstract class BaseAction
 {
     public function __construct(
         protected CommanderServiceInterface $commanderService,
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the action and return a JSON response
@@ -84,4 +83,4 @@ abstract class BaseAction
             return $this->handleException($e, $context);
         }
     }
-} 
+}

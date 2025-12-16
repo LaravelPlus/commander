@@ -29,7 +29,7 @@ final class RetryCommandAction extends BaseAction
     {
         $commandName = $this->request->input('command');
 
-        if (! $commandName) {
+        if (!$commandName) {
             return $this->errorResponse('Command name is required', 400);
         }
 
@@ -37,4 +37,4 @@ final class RetryCommandAction extends BaseAction
 
         return response()->json($result);
     }
-} 
+}

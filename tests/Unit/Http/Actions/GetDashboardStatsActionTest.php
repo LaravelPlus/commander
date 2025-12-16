@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Http\Actions\GetDashboardStatsAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class GetDashboardStatsActionTest extends TestCase
+final class GetDashboardStatsActionTest extends TestCase
 {
     private GetDashboardStatsAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
 
     protected function setUp(): void
@@ -55,7 +57,7 @@ class GetDashboardStatsActionTest extends TestCase
     {
         $this->mockCommanderService->shouldReceive('getDashboardStats')
             ->once()
-            ->andThrow(new \Exception('Failed to load dashboard stats'));
+            ->andThrow(new Exception('Failed to load dashboard stats'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -97,4 +99,4 @@ class GetDashboardStatsActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

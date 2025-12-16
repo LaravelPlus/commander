@@ -8,9 +8,9 @@ use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use LaravelPlus\Commander\Contracts\CommandExecutionRepositoryInterface;
 use LaravelPlus\Commander\Contracts\CommandRepositoryInterface;
-use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 
 final class CommanderService implements CommanderServiceInterface
 {
@@ -214,6 +214,7 @@ final class CommanderService implements CommanderServiceInterface
     public function cleanupOldRecords(?int $days = null): int
     {
         $days = $days ?? config('commander.retention_days', 90);
+
         return $this->executionRepository->cleanupOldRecords($days);
     }
 
@@ -223,13 +224,13 @@ final class CommanderService implements CommanderServiceInterface
     private function runArtisanCommand(string $commandName, array $arguments = [], array $options = []): string
     {
         $output = new \Symfony\Component\Console\Output\BufferedOutput();
-        
+
         $exitCode = Artisan::call($commandName, array_merge($arguments, $options), $output);
-        
+
         if ($exitCode !== 0) {
             throw new Exception("Command failed with exit code: {$exitCode}");
         }
-        
+
         return $output->fetch();
     }
 
@@ -239,11 +240,11 @@ final class CommanderService implements CommanderServiceInterface
     private function truncateOutput(string $output): string
     {
         $maxLength = config('commander.max_output_length', 10000);
-        
-        if (strlen($output) > $maxLength) {
-            return substr($output, 0, $maxLength) . "\n... (truncated)";
+
+        if (mb_strlen($output) > $maxLength) {
+            return mb_substr($output, 0, $maxLength) . "\n... (truncated)";
         }
-        
+
         return $output;
     }
 }

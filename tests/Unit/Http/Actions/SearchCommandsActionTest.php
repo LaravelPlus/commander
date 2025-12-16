@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -12,10 +13,12 @@ use LaravelPlus\Commander\Http\Actions\SearchCommandsAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class SearchCommandsActionTest extends TestCase
+final class SearchCommandsActionTest extends TestCase
 {
     private SearchCommandsAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
+
     private Request $mockRequest;
 
     protected function setUp(): void
@@ -88,7 +91,7 @@ class SearchCommandsActionTest extends TestCase
         $this->mockCommanderService->shouldReceive('searchCommands')
             ->with($searchQuery)
             ->once()
-            ->andThrow(new \Exception('Search failed'));
+            ->andThrow(new Exception('Search failed'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -131,4 +134,4 @@ class SearchCommandsActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

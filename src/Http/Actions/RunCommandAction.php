@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
@@ -34,7 +35,7 @@ final class RunCommandAction extends BaseAction
         $arguments = $this->request->input('arguments', []);
         $options = $this->request->input('options', []);
 
-        if (! $command) {
+        if (!$command) {
             return $this->errorResponse('Command name is required', 400);
         }
 
@@ -42,7 +43,7 @@ final class RunCommandAction extends BaseAction
             return $this->errorResponse('This command is disabled and cannot be executed', 403);
         }
 
-        if (! $this->shouldTrackCommand($command)) {
+        if (!$this->shouldTrackCommand($command)) {
             return $this->executeCommandWithoutTracking($command, $arguments, $options);
         }
 
@@ -53,7 +54,7 @@ final class RunCommandAction extends BaseAction
             $this->completeTracking($result['success'], $result['return_code'], $result['output']);
 
             return response()->json($result);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->completeTracking(false, 1, $e->getMessage());
             throw $e;
         }

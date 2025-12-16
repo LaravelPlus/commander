@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace LaravelPlus\Commander\Tests\Unit\Http\Actions;
 
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
@@ -11,9 +12,10 @@ use LaravelPlus\Commander\Http\Actions\GetCommandsAction;
 use LaravelPlus\Commander\Tests\TestCase;
 use Mockery;
 
-class GetCommandsActionTest extends TestCase
+final class GetCommandsActionTest extends TestCase
 {
     private GetCommandsAction $action;
+
     private CommanderServiceInterface $mockCommanderService;
 
     protected function setUp(): void
@@ -51,7 +53,7 @@ class GetCommandsActionTest extends TestCase
     {
         $this->mockCommanderService->shouldReceive('getCommandsWithExecutionData')
             ->once()
-            ->andThrow(new \Exception('Service error'));
+            ->andThrow(new Exception('Service error'));
 
         $response = $this->action->execute();
         $data = $response->getData(true);
@@ -86,4 +88,4 @@ class GetCommandsActionTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-} 
+}

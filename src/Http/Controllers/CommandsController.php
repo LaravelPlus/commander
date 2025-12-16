@@ -9,28 +9,25 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\View\View;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
-use LaravelPlus\Commander\Http\Actions\{
-    GetCommandsAction,
-    RunCommandAction,
-    GetCommandHistoryAction,
-    GetCommandStatsAction,
-    GetDashboardStatsAction,
-    GetRecentExecutionsAction,
-    GetPopularCommandsAction,
-    GetFailedCommandsAction,
-    RetryCommandAction,
-    GetActivityAction,
-    SearchCommandsAction,
-    GetCommandsByCategoryAction,
-    CleanupRecordsAction,
-};
+use LaravelPlus\Commander\Http\Actions\CleanupRecordsAction;
+use LaravelPlus\Commander\Http\Actions\GetActivityAction;
+use LaravelPlus\Commander\Http\Actions\GetCommandHistoryAction;
+use LaravelPlus\Commander\Http\Actions\GetCommandsAction;
+use LaravelPlus\Commander\Http\Actions\GetCommandsByCategoryAction;
+use LaravelPlus\Commander\Http\Actions\GetCommandStatsAction;
+use LaravelPlus\Commander\Http\Actions\GetDashboardStatsAction;
+use LaravelPlus\Commander\Http\Actions\GetFailedCommandsAction;
+use LaravelPlus\Commander\Http\Actions\GetPopularCommandsAction;
+use LaravelPlus\Commander\Http\Actions\GetRecentExecutionsAction;
+use LaravelPlus\Commander\Http\Actions\RetryCommandAction;
+use LaravelPlus\Commander\Http\Actions\RunCommandAction;
+use LaravelPlus\Commander\Http\Actions\SearchCommandsAction;
 
 final class CommandsController extends Controller
 {
     public function __construct(
         protected CommanderServiceInterface $commanderService,
-    ) {
-    }
+    ) {}
 
     // Web Interface Routes
     public function index(): View
