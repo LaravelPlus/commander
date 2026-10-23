@@ -220,14 +220,6 @@ final class CommandRepository implements CommandRepositoryInterface
      */
     private function isCommandDisabled(string $commandName): bool
     {
-        $disabledCommands = config('commander.disabled_commands', []);
-
-        foreach ($disabledCommands as $pattern) {
-            if ($this->matchesPattern($commandName, $pattern)) {
-                return true;
-            }
-        }
-
-        return false;
+        return !\Illuminate\Support\Str::is((array) config('commander.allowed_commands', []), $commandName);
     }
 }

@@ -30,6 +30,8 @@ abstract class TestCase extends Orchestra
         $app['config']->set('commander.enabled', true);
         $app['config']->set('commander.url', 'commander');
         $app['config']->set('commander.middleware', []);
+        $app['config']->set('commander.allowed_commands', ['help', 'list']);
+        \Illuminate\Support\Facades\Gate::define('viewCommander', fn ($user = null) => true);
 
         // Set app key for testing
         $app['config']->set('app.key', 'base64:'.base64_encode(random_bytes(32)));

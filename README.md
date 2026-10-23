@@ -177,61 +177,22 @@ return [
     'test:make',
 ],
 
-// Commands that appear but cannot be executed (read-only)
-'disabled_commands' => [
-    'migrate:fresh',
-    'migrate:refresh',
-    'migrate:reset',
-    'db:wipe',
-    'config:clear',
-    'route:clear',
-    'view:clear',
-    'cache:clear',
-    'optimize:clear',
-    'event:clear',
-    'queue:restart',
-    'queue:flush',
-    'queue:forget',
-    'queue:retry',
-    'queue:retry-batch',
-    'queue:work',
-    'queue:listen',
-    'schedule:run',
-    'schedule:list',
-    'schedule:test',
-    'schedule:work',
-    'vendor:publish',
-    'vendor:install',
-    'vendor:update',
-    'package:discover',
-    'package:clear-cache',
-    'package:optimize',
-    'package:cache',
-    'package:config',
-    'package:route',
-    'package:view',
-    'package:lang',
-    'package:migrate',
-    'package:seed',
-    'package:publish',
-    'package:install',
-    'package:update',
-    'package:uninstall',
-    'package:list',
-    'package:show',
-    'package:outdated',
-    'package:update',
-    'package:install',
-    'package:remove',
-    'package:require',
-    'package:require-dev',
-    'package:update',
-    'package:install',
-    'package:remove',
-    'package:require',
-    'package:require-dev',
+// Only these commands can be run/retried; everything else is read-only (default: none)
+'allowed_commands' => [
+    // 'about',
+    // 'migrate:status',
 ],
 ```
+
+## Authorization (breaking in 2.x)
+
+All routes (UI, API, retry) are gated by the `viewCommander` Gate ability and **denied by default**; unauthorized requests get a 404. Define it in your app:
+
+```php
+Gate::define('viewCommander', fn ($user) => $user->is_admin);
+```
+
+Override the ability name with `COMMANDER_GATE`. Commands run only if they match `allowed_commands` (allow-list, empty by default). `COMMANDER_MIDDLEWARE` is a comma-separated list (default `web,auth`).
 
 ## 🧪 Testing
 

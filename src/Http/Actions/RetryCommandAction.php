@@ -33,6 +33,10 @@ final class RetryCommandAction extends BaseAction
             return $this->errorResponse('Command name is required', 400);
         }
 
+        if (!$this->isCommandAllowed($commandName)) {
+            return $this->errorResponse('This command is disabled and cannot be executed', 403);
+        }
+
         $result = $this->commanderService->retryCommand($commandName);
 
         return response()->json($result);

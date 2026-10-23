@@ -17,11 +17,12 @@ use LaravelPlus\Commander\Http\Actions\GetRecentExecutionsAction;
 use LaravelPlus\Commander\Http\Actions\RetryCommandAction;
 use LaravelPlus\Commander\Http\Actions\RunCommandAction;
 use LaravelPlus\Commander\Http\Actions\SearchCommandsAction;
+use LaravelPlus\Commander\Http\Middleware\AuthorizeCommander;
 
 $commanderUrl = config('commander.url', 'commander');
 
 Route::group([
-    'middleware' => config('commander.middleware', ['auth', 'web']),
+    'middleware' => [...config('commander.middleware', ['web', 'auth']), AuthorizeCommander::class],
     'prefix' => $commanderUrl,
 ], function (): void {
     // API routes for command management
@@ -54,18 +55,6 @@ Route::group([
 
     // Debug and test routes (only in non-production)
     if (app()->environment('local', 'development')) {
-        Route::get('/api/test', fn (): Illuminate\Http\JsonResponse => (new GetCommandsAction(app(CommanderServiceInterface::class)))->execute())->name('commander.api.test')->middleware([]);
+        Route::get('/api/test', fn (): Illuminate\Http\JsonResponse => (new GetCommandsAction(app(CommanderServiceInterface::class)))->execute())->name('commander.api.test');
     }
 });
-
-// Development-only routes without authentication
-if (app()->environment('local', 'development')) {
-    Route::group([
-        'prefix' => $commanderUrl,
-        'middleware' => ['web'],
-    ], function (): void {
-        Route::get('/api/dev/list', fn (): Illuminate\Http\JsonResponse => (new GetCommandsAction(app(CommanderServiceInterface::class)))->execute())->name('commander.api.dev.list');
-
-        Route::post('/api/dev/run', fn (): Illuminate\Http\JsonResponse => (new RunCommandAction(app(CommanderServiceInterface::class), request()))->execute())->name('commander.api.dev.run')->withoutMiddleware(['web']);
-    });
-}
