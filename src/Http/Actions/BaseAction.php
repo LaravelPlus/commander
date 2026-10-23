@@ -6,6 +6,7 @@ namespace LaravelPlus\Commander\Http\Actions;
 
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 use LaravelPlus\Commander\Contracts\CommanderServiceInterface;
 use Log;
 
@@ -19,6 +20,14 @@ abstract class BaseAction
      * Execute the action and return a JSON response
      */
     abstract public function execute(): JsonResponse;
+
+    /**
+     * Only commands matching the configured allow-list may be executed.
+     */
+    protected function isCommandAllowed(string $commandName): bool
+    {
+        return Str::is((array) config('commander.allowed_commands', []), $commandName);
+    }
 
     /**
      * Create a successful JSON response

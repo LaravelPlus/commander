@@ -51,17 +51,17 @@ final class CommanderService implements CommanderServiceInterface
         $startTime = microtime(true);
         $startedAt = now();
 
-        try {
-            // Create execution record
-            $execution = $this->executionRepository->create([
-                'command_name' => $commandName,
-                'arguments' => $arguments,
-                'options' => $options,
-                'started_at' => $startedAt,
-                'executed_by' => auth()->id(),
-                'environment' => config('app.env'),
-            ]);
+        // Create execution record (outside the try so $execution is always defined)
+        $execution = $this->executionRepository->create([
+            'command_name' => $commandName,
+            'arguments' => $arguments,
+            'options' => $options,
+            'started_at' => $startedAt,
+            'executed_by' => auth()->id(),
+            'environment' => config('app.env'),
+        ]);
 
+        try {
             // Execute the command
             $output = $this->runArtisanCommand($commandName, $arguments, $options);
             $returnCode = 0;
@@ -223,7 +223,7 @@ final class CommanderService implements CommanderServiceInterface
      */
     private function runArtisanCommand(string $commandName, array $arguments = [], array $options = []): string
     {
-        $output = new \Symfony\Component\Console\Output\BufferedOutput();
+        $output = new \Symfony\Component\Console\Output\BufferedOutput;
 
         $exitCode = Artisan::call($commandName, array_merge($arguments, $options), $output);
 

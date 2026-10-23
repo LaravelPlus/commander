@@ -27,7 +27,7 @@ return [
     'url' => env('COMMANDER_URL', 'admin/commander'),
     'route_prefix' => env('COMMANDER_ROUTE_PREFIX', 'admin'),
     'route_name_prefix' => env('COMMANDER_ROUTE_NAME_PREFIX', 'commander'),
-    'middleware' => env('COMMANDER_MIDDLEWARE', ['auth', 'web']),
+    'middleware' => explode(',', (string) env('COMMANDER_MIDDLEWARE', 'web,auth')),
 
     /*
     |--------------------------------------------------------------------------
@@ -188,68 +188,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Disabled Commands
+    | Allowed Commands (allow-list)
     |--------------------------------------------------------------------------
     |
-    | Specify which commands should be disabled (read-only) in the interface.
-    | These commands will appear in the list but cannot be executed.
-    | Use wildcards like 'dangerous:*' to disable all commands starting with 'dangerous:'.
+    | ONLY commands matching these patterns can be run or retried from the
+    | interface; everything else is listed read-only. Empty by default, so
+    | nothing can be executed until you opt in. Wildcards: 'cache:*'.
     |
     */
 
-    'disabled_commands' => [
-        'migrate:fresh',
-        'migrate:refresh',
-        'migrate:reset',
-        'db:wipe',
-        'config:clear',
-        'route:clear',
-        'view:clear',
-        'cache:clear',
-        'optimize:clear',
-        'event:clear',
-        'queue:restart',
-        'queue:flush',
-        'queue:forget',
-        'queue:retry',
-        'queue:retry-batch',
-        'queue:work',
-        'queue:listen',
-        'schedule:run',
-        'schedule:list',
-        'schedule:test',
-        'schedule:work',
-        'vendor:publish',
-        'vendor:install',
-        'vendor:update',
-        'package:discover',
-        'package:clear-cache',
-        'package:optimize',
-        'package:cache',
-        'package:config',
-        'package:route',
-        'package:view',
-        'package:lang',
-        'package:migrate',
-        'package:seed',
-        'package:publish',
-        'package:install',
-        'package:update',
-        'package:uninstall',
-        'package:list',
-        'package:show',
-        'package:outdated',
-        'package:update',
-        'package:install',
-        'package:remove',
-        'package:require',
-        'package:require-dev',
-        'package:update',
-        'package:install',
-        'package:remove',
-        'package:require',
-        'package:require-dev',
+    'allowed_commands' => [
+        // 'about',
+        // 'migrate:status',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authorization
+    |--------------------------------------------------------------------------
+    |
+    | Every route is gated by this Gate ability. It is denied unless the host
+    | app defines it (Gate::define('viewCommander', fn ($user) => ...)).
+    | Unauthorized requests get a 404.
+    |
+    */
+
+    'gate' => env('COMMANDER_GATE', 'viewCommander'),
 
     /*
     |--------------------------------------------------------------------------
